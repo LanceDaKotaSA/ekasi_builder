@@ -1,0 +1,133 @@
+﻿@model EkasiBuilders.ViewModels.ShoppingCartViewModel
+
+@{
+    ViewBag.Title = "Shopping Cart";
+}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function() {
+        $(".RemoveLink")
+            .click(function() {
+                var recordToDelete = $(this).attr("data-id");
+                if (recordToDelete != '') {
+                    $.post("/ShoppingCart/RemoveFromCart",
+                        { "id": recordToDelete },
+                        function(data) {
+                            if (data.ItemCount == 0) {
+                                $('#row-' + data.DeletedId).fadeOut('slow');
+                            } else {
+                                $('#item-count-' + data.DeletedId).text(data.ItemCount);
+                            }
+                            $('#cart-total').text(data.CartTotal);
+                            $('#update-message').text(data.Message);
+                            $('#cart-status').text(data.CartCount);
+                        });
+                }
+            });
+    });
+</script>
+
+@*<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>*@
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <p>Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<h3>
+    <em>Review</em> your shopping cart:
+</h3>
+
+@{ 
+    if(Model.CartItems.Count > 0)
+    {
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Order Summary</h3>
+            </div>
+            <div class="panel-body">
+                <div id="update-message" class="text-danger">
+                </div>
+
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                Product Name
+                            </th>
+                            <th>
+                                Price (each)
+                            </th>
+                            <th>
+                                Quantity
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    @foreach(var item in Model.CartItems)
+                    {
+                        <tr id="row-@item.ProductId">
+                            <td>
+                                @Html.ActionLink(item.Product.ProductName, "Details", "ProductList", new { id = item.ProductId }, new { htmlAttributes = new { @data_toggle = "modal", @data_target = "#myModal" } })
+                            </td>
+                            <td>
+                                @item.Product.SellingPrice
+                            </td>
+                            <td id="item-count-@item.ProductId">
+                                @item.Count
+                            </td>
+                            <td>
+                                <span class="btn btn-warning btn-md">
+                                    <a href="#" class="RemoveLink" data-id="@item.ProductId">
+                                        Remove From Cart
+                                    </a>
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                <tr class="info">
+                    <td>
+                        Total:
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td id="cart-total">
+                        ZAR @Model.CartTotal
+                    </td>
+                </tr>
+                </table>
+                <button type="button" class="btn btn-success btn-md" onclick="location.href='@Url.Action("AddressAndPayment", "Checkout")'">
+                    Check Out &raquo;
+                </button>
+                @Html.ActionLink("Continue Shopping", "Index", "ProductList", null, new { @class = "btn btn-success btn-md"})
+            </div>
+        </div>
+    }
+    else
+    {
+        <div>
+            <p>
+                There are no items in your shopping cart currently. Please shop for something and add items to cart...
+            </p>
+        </div>
+    }
+}
+

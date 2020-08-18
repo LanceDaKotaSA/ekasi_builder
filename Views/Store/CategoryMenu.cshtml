@@ -1,0 +1,13 @@
+﻿@model IEnumerable<EkasiBuilders.Models.Category>
+
+<div class="well well-md">
+    <h4 class="list-group-item-heading">Shop by Categories</h4>
+    @foreach(var category in Model)
+    {
+        <div>@Html.ActionLink(category.CategoryName,
+           "Browse", "Store",
+           new {category = category.CategoryName},
+           new { @class = "lnkGetReward btn btn-success btn-block" })
+        </div><br />
+    }
+</div>

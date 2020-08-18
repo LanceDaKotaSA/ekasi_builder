@@ -1,0 +1,100 @@
+﻿@using EkasiBuilders.Controllers
+@using PagedList.Mvc
+@model PagedList.IPagedList<EkasiBuilders.Models.Product>
+
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        // Document.ready -> link up remove event handler
+        $(".AddLink").click(function () {
+            // Get the id from the link
+            var recordToAdd = $(this).attr("data-id");
+            if (recordToAdd != '') {
+                // Perform the ajax post
+                $.post("/ShoppingCart/AddToCart", { "id": recordToAdd },
+                    function (data) {
+                        $('#cart-status').text(data.CartCount);
+                    });
+            }
+        });
+    });
+</script>
+<!-- Button trigger modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div aria-hidden="true" class="alert alert-dismissable alert-success">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>An item was added to your cart.</strong> To check out now simply <a href="#" class="alert-link">click here</a>.
+    </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Confirm check out.</h4>
+            </div>
+            <div class="modal-body">
+                <p>Would you like to check out or keep shopping??</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Continue</button>
+                <button type="submit" class="btn btn-primary" onclick="location.href='@Url.Action("Index", "ShoppingCart")'">Check Out</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<h3>All Products</h3>
+<div class="well well-md">
+    @using (Html.BeginForm("Index", "ProductList", FormMethod.Post))
+    {
+        <div>
+            <h4><span class="glyphicon glyphicon-search">Search</span></h4>
+            <b>Category:</b> @Html.DropDownList("itemCategory", "All")
+            <b>Product Name: </b>@Html.TextBox("searchString")
+            <input type="submit" value="Search" class="btn btn-info btn-sm" />
+        </div>
+    }
+</div>
+<hr />
+<div class="col-sm-4 pull-left">
+    @{ Html.RenderAction("CategoryMenu", "Store");}
+</div>
+<div class="col-sm-8 pull-right">
+
+    @foreach (var p in Model)
+    {
+        <div class="well well-md">
+
+            <h3>
+                <img src="@Url.Action("RenderImage", new { id = p.ProductId})" width="15%" />
+                <strong>@p.ProductName</strong>
+                <span class="pull-right">@p.SellingPrice.ToString("C")</span><br />
+
+                <span class="btn btn-success btn-md pull-right">
+                    <a href="#" class="AddLink"
+                       data-id="@p.ProductId" data-toggle="modal" data-target="#myModal">
+                        Add
+                        to cart
+                    </a>
+                    <!--@Html.ActionLink("Add to cart", "AddToCart", "ShoppingCart", new { id = p.ProductId },
+                     new { htmlAttributes = new { @data_toggle = "modal", @data_target = "#myModal" } })-->
+                </span>
+            </h3>
+            <span class="lead">@p.Description</span>
+        </div>
+
+    }
+    <br />
+    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("Index",
+new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+
+</div>

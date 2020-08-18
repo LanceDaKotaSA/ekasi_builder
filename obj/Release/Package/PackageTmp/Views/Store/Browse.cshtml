@@ -1,0 +1,24 @@
+﻿@model EkasiBuilders.Models.Category
+
+@{
+    ViewBag.Title = "Browse Products";
+}
+
+<h3>Products</h3>
+<div class="well well-md">
+    <h3><em>@Model.CategoryName</em> Products</h3>
+
+    <div class="well well-sm">
+        @foreach (var product in Model.Products)
+        {
+            <div>
+                <a href="@Url.Action("Details", new { id = product.ProductId})">
+                    @*<img alt="@product.ProductName" src="~/Content/Images/@product.Image"/>*@
+                    @product.ProductName
+                    <img src="@Url.Action("RenderImage", new { id = product.ProductId})" width="15%" />
+                    @*<span>@product.ProductName</span>*@
+                </a>
+            </div>
+        }
+    </div>
+</div>

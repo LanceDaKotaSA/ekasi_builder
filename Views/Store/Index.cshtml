@@ -1,0 +1,15 @@
+﻿@model IEnumerable<EkasiBuilders.Models.Category>
+
+@{
+    ViewBag.Title = "Store";
+}
+
+<p>
+    Select from @Model.Count() categories:
+</p>
+<ul>
+    @foreach (var category in Model)
+    {
+        <li>@Html.ActionLink(category.CategoryName, "Browse", new { category = category.CategoryName })</li>
+    }
+</ul>
